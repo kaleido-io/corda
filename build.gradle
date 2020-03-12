@@ -189,6 +189,7 @@ buildscript {
         classpath group: "com.r3.testing", name: "gradle-distributed-testing-plugin", version: "1.2-LOCAL-K8S-SHARED-CACHE-SNAPSHOT", changing: true
         classpath group: "com.r3.dependx", name: "gradle-dependx", version: "0.1.12", changing: true
         classpath "com.bmuschko:gradle-docker-plugin:5.0.0"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8"
     }
 }
 
@@ -241,6 +242,7 @@ allprojects {
     apply plugin: 'jacoco'
     apply plugin: 'org.owasp.dependencycheck'
     apply plugin: 'kotlin-allopen'
+    apply plugin: 'org.sonarqube'
 
     allOpen {
         annotations(
@@ -270,6 +272,18 @@ allprojects {
     jacoco {
         // JDK11 official support (https://github.com/jacoco/jacoco/releases/tag/v0.8.3)
         toolVersion = "0.8.3"
+    }
+
+    sonarqube {
+        properties {
+            property "sonar.projectName", "Corda"
+            property "sonar.projectKey", "corda"
+            property 'sonar.sources', 'src'
+            property 'sonar.tests', 'src'
+            property 'sonar.inclusions', 'src/main/**'
+            property 'sonar.test.inclusions', 'src/test/**'
+            property 'sonar.coverage.jacoco.xmlReportPaths', '../build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml'
+        }
     }
 
     tasks.withType(JavaCompile) {
@@ -397,6 +411,24 @@ allprojects {
         runtime {
             // We never want isolated.jar on classPath, since we want to test jar being dynamically loaded as an attachment
             exclude module: 'isolated'
+        }
+    }
+}
+
+subprojects {
+
+    def sonarqubeExcludedProjectPaths = [
+            ":docs",
+            ":tools:explorer:capsule",
+            ":testing:testserver:testcapsule",
+            ":tools:graphs",
+            ":jdk8u-deterministic"
+    ] as Set<String>
+    sonarqubeExcludedProjectPaths.forEach {
+        project(it) {
+            sonarqube {
+                skipProject = true
+            }
         }
     }
 }

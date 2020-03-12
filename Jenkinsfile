@@ -67,6 +67,34 @@ pipeline {
                 }
             }
         }
+
+        stage('Sonarqube Report') {
+            steps {
+                withSonarQubeEnv('sq01') {
+                    sh "./gradlew --no-daemon build sonarqube -x test --stacktrace"
+                }
+            }
+        }
+
+        stage('Sonarqube Quality Gate') {
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    script {
+                        script {
+                           try {
+                                def qg = waitForQualityGate();
+                                if (qg.status != 'OK') {
+                                    error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                                }
+                            } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                                println('No sonarqube webhook response within timeout. Please check the webhook configuration in sonarqube.')
+                                // continue the pipeline
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
