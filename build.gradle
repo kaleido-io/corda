@@ -282,7 +282,7 @@ allprojects {
             property 'sonar.tests', 'src'
             property 'sonar.inclusions', 'src/main/**'
             property 'sonar.test.inclusions', 'src/test/**'
-            property 'sonar.coverage.jacoco.xmlReportPaths', '../build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml'
+            property 'sonar.coverage.jacoco.xmlReportPaths', '../build/test-results-xml/**/*.xml'
         }
     }
 
