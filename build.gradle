@@ -274,18 +274,6 @@ allprojects {
         toolVersion = "0.8.3"
     }
 
-    sonarqube {
-        properties {
-            property "sonar.projectName", "Corda"
-            property "sonar.projectKey", "corda"
-            property 'sonar.sources', 'src'
-            property 'sonar.tests', 'src'
-            property 'sonar.inclusions', 'src/main/**'
-            property 'sonar.test.inclusions', 'src/test/**'
-            property 'sonar.coverage.jacoco.xmlReportPaths', '../build/test-results-xml/**/*.xml'
-        }
-    }
-
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options" << "-parameters"
         options.compilerArgs << '-XDenableSunApiLintControl'
@@ -415,21 +403,16 @@ allprojects {
     }
 }
 
-subprojects {
-
-    def sonarqubeExcludedProjectPaths = [
-            ":docs",
-            ":tools:explorer:capsule",
-            ":testing:testserver:testcapsule",
-            ":tools:graphs",
-            ":jdk8u-deterministic"
-    ] as Set<String>
-    sonarqubeExcludedProjectPaths.forEach {
-        project(it) {
-            sonarqube {
-                skipProject = true
-            }
-        }
+sonarqube {
+    properties {
+        property "sonar.projectName", "Corda"
+        property "sonar.projectKey", "corda"
+        property 'sonar.sources', '**/src'
+        property 'sonar.tests', '**/src'
+        property 'sonar.inclusions', '**/src/main/**'
+        property 'sonar.test.inclusions', '**/src/test/**,**/src/smoke-test/**,**/src/integration-test/**,**/src/integration-test-slow/**'
+        //property 'sonar.coverage.jacoco.xmlReportPaths', ""
+        property 'sonar.dynamicAnalysis', 'reuseReports'
     }
 }
 
