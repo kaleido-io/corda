@@ -2,6 +2,11 @@ import com.r3.testing.DistributeTestsBy
 import com.r3.testing.ParallelTestGroup
 import com.r3.testing.PodLogLevel
 
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.stream.Collectors
+import java.util.function.BiPredicate
+
 import static org.gradle.api.JavaVersion.VERSION_11
 import static org.gradle.api.JavaVersion.VERSION_1_8
 
@@ -410,8 +415,11 @@ sonarqube {
         property 'sonar.sources', '**/src'
         property 'sonar.tests', '**/src'
         property 'sonar.inclusions', '**/src/main/**'
-        property 'sonar.test.inclusions', '**/src/test/**,**/src/smoke-test/**,**/src/integration-test/**,**/src/integration-test-slow/**'
-        //property 'sonar.coverage.jacoco.xmlReportPaths', ""
+        property 'sonar.test.inclusions', '**/src/test/**'
+        property 'sonar.coverage.jacoco.xmlReportPaths', Files.find(
+                new File("${rootDir.path}/build/test-results-xml").toPath(),
+                Integer.MAX_VALUE,
+                { path, basicFileAttributes -> path.toFile().isFile() && path.toFile().name.matches(".*xml") }).collect(Collectors.toList()).join(',')
         property 'sonar.dynamicAnalysis', 'reuseReports'
     }
 }
