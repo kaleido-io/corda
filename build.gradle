@@ -402,15 +402,11 @@ allprojects {
         }
     }
 }
-
 sonarqube {
     properties {
         property "sonar.projectName", "Corda"
         property "sonar.projectKey", "corda"
-        property 'sonar.sources', '**/src'
-        property 'sonar.tests', '**/src'
-        property 'sonar.inclusions', '**/src/main/**'
-        property 'sonar.test.inclusions', '**/src/test/**'
+        property 'sonar.tests', '**/src/test/**,**/src/smoke-test/**,**/src/integration-test/**,**/src/integration-test-slow/**'
         property 'sonar.dynamicAnalysis', 'reuseReports'
     }
 }
