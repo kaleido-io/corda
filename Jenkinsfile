@@ -68,10 +68,22 @@ pipeline {
             }
         }
 
+        stage('Run detekt report') {
+            steps {
+                sh "./gradlew --no-daemon detekt --stacktrace"
+            }
+        }
+
+        stage('Generate build files') {
+            steps {
+                sh "./gradlew --no-daemon build -x test --stacktrace"
+            }
+        }
+
         stage('Sonarqube Report') {
             steps {
                 withSonarQubeEnv('sq01') {
-                    sh "./gradlew --no-daemon build sonarqube -x test --stacktrace"
+                    sh "./gradlew --no-daemon sonarqube -x test --stacktrace"
                 }
             }
         }
