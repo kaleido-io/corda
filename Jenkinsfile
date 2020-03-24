@@ -68,12 +68,6 @@ pipeline {
             }
         }
 
-        stage('Run detekt report') {
-            steps {
-                sh "./gradlew --no-daemon detekt --stacktrace"
-            }
-        }
-
         stage('Generate build files') {
             steps {
                 sh "./gradlew --no-daemon build -x test --stacktrace"
