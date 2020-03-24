@@ -410,12 +410,7 @@ sonarqube {
         property "sonar.projectName", "Corda"
         property "sonar.projectKey", "corda"
         property 'sonar.tests', '**/src/test/**,**/src/smoke-test/**,**/src/integration-test/**,**/src/integration-test-slow/**'
-        property 'sonar.dynamicAnalysis', 'reuseReports'
-        property 'sonar.junit.reportPaths', Files.find(
-                new File("${rootDir.path}/build/test-results-xml").toPath(),
-                Integer.MAX_VALUE,
-                { path, basicFileAttributes -> path.toFile().isFile() && path.toFile().name.matches(".*xml") })
-        .map { it.parent }.collect(Collectors.toSet()).join(',')
+        property 'sonar.coverage.jacoco.xmlReportPaths', "${rootDir.path}/build/reports/jacoco/jacocoRootReport/jacocoRootReport.xml"
     }
 }
 

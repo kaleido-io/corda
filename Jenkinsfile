@@ -70,7 +70,7 @@ pipeline {
 
         stage('Generate build files') {
             steps {
-                sh "./gradlew --no-daemon build -x test --stacktrace"
+                sh "./gradlew --no-daemon build jacocoRootReport -x test --stacktrace"
             }
         }
 
