@@ -472,6 +472,15 @@ task jacocoRootReport(type: org.gradle.testing.jacoco.tasks.JacocoReport) {
             it.exists()
         })
     }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/net/corda/core/crypto/**',
+                    '**/net/corda/core/internal/**',
+                    '**/net/corda/core/serialization/**',
+                    '**/net/corda/serialization/internal/**'])
+        })
+    }
 }
 
 tasks.register('detekt', JavaExec) {
