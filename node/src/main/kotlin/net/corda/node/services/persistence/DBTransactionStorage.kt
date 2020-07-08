@@ -9,6 +9,8 @@ import net.corda.core.internal.VisibleForTesting
 import net.corda.core.internal.bufferUntilSubscribed
 import net.corda.core.internal.concurrent.doneFuture
 import net.corda.core.messaging.DataFeed
+import net.corda.core.node.services.TransactionStorage
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.serialization.*
 import net.corda.core.serialization.internal.effectiveSerializationEnv
 import net.corda.core.toFuture
@@ -220,6 +222,17 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
         }
     }
 
+    /**
+    * Kaleido : track with paging spec
+     * */
+    override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction> {
+        return database.transaction {
+            txStorage.locked {
+                DataFeed(pagedSnapshot(paging), updates.bufferUntilSubscribed())
+            }
+        }
+    }
+
     override fun trackTransaction(id: SecureHash): CordaFuture<SignedTransaction> {
 
         if (contextTransactionOrNull != null) {
@@ -253,6 +266,31 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
         return txStorage.content.allPersisted.use {
             it.filter { it.second.status.isVerified() }.map { it.second.toSignedTx() }.toList()
         }
+    }
+
+    /**
+     * Kaleido: returns a Paged Snapshot with give paging spec
+     */
+    private fun pagedSnapshot(paging_: PageSpecification): TransactionStorage.Page<SignedTransaction> {
+        val paging = if (paging_.pageSize == Integer.MAX_VALUE) {
+            paging_.copy(pageSize = Integer.MAX_VALUE - 1)
+        } else {
+            paging_
+        }
+        DBTransactionStorage.log.debug { "Paging spec for transaction snapshot: $paging" }
+        // calculate total transactions where a page specification has been defined
+        var totalTransactions = -1L
+        if (!paging.isDefault) {
+            totalTransactions = txStorage.content.size;
+        }
+
+        var firstResult = maxOf(0, (paging.pageNumber - 1) * paging.pageSize)
+        val pageSize = paging.pageSize + 1
+        var maxResults = if (pageSize > 0) pageSize else Integer.MAX_VALUE // detection too many results, protected against overflow
+
+        return TransactionStorage.Page(txStorage.content.allPersisted.use {
+            it.skip(firstResult.toLong()-1).filter { it.second.status.isVerified() }.map { it.second.toSignedTx() }.limit(maxResults.toLong()).toList()
+        }, (totalTransactions - firstResult) - maxResults)
     }
 
     // Cache value type to just store the immutable bits of a signed transaction plus conversion helpers

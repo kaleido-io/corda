@@ -34,4 +34,9 @@ interface TransactionStorage {
      * Returns a future that completes with the transaction corresponding to [id] once it has been committed
      */
     fun trackTransaction(id: SecureHash): CordaFuture<SignedTransaction>
+
+    /**
+     * Kaleido: SignedTransaction Page.
+     */
+    data class Page<SignedTransaction> (val signedTransactions: List<SignedTransaction>, val otherResult: Long)
 }

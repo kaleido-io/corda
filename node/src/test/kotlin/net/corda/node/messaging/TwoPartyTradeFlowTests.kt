@@ -14,7 +14,9 @@ import net.corda.core.internal.concurrent.map
 import net.corda.core.internal.rootCause
 import net.corda.core.messaging.DataFeed
 import net.corda.core.messaging.StateMachineTransactionMapping
+import net.corda.core.node.services.TransactionStorage
 import net.corda.core.node.services.Vault
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.serialization.SingletonSerializeAsToken
 import net.corda.core.toFuture
@@ -736,6 +738,15 @@ class TwoPartyTradeFlowTests(private val anonymous: Boolean) {
         override fun trackTransactionWithNoWarning(id: SecureHash): CordaFuture<SignedTransaction> {
             return database.transaction {
                 delegate.trackTransactionWithNoWarning(id)
+            }
+        }
+
+        /**
+         * Kaliedo, new api impl
+         */
+        override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction> {
+            return database.transaction {
+                delegate.trackWithPagingSpec(paging)
             }
         }
 
