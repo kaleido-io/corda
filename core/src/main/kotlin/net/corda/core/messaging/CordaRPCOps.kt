@@ -196,7 +196,7 @@ interface CordaRPCOps : RPCOps {
 
     /**
      * Kaleido
-     * @suppress Returns a page of all recorded transactions, with paging spec.
+     * Returns a page of all recorded transactions, with paging spec.
      *
      * TODO This method should be removed once SGX work is finalised and the design of the corresponding API using [FilteredTransaction] can be started
      */

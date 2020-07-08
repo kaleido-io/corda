@@ -5,6 +5,7 @@ import net.corda.core.DoNotImplement
 import net.corda.core.concurrent.CordaFuture
 import net.corda.core.crypto.SecureHash
 import net.corda.core.messaging.DataFeed
+import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import rx.Observable
 
@@ -38,5 +39,6 @@ interface TransactionStorage {
     /**
      * Kaleido: SignedTransaction Page.
      */
+    @CordaSerializable
     data class Page<SignedTransaction> (val signedTransactions: List<SignedTransaction>, val otherResult: Long)
 }
