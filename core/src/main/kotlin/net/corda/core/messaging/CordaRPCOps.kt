@@ -16,6 +16,7 @@ import net.corda.core.node.NodeDiagnosticInfo
 import net.corda.core.node.NodeInfo
 import net.corda.core.node.services.AttachmentId
 import net.corda.core.node.services.NetworkMapCache
+import net.corda.core.node.services.TransactionStorage
 import net.corda.core.node.services.Vault
 import net.corda.core.node.services.VaultQueryException
 import net.corda.core.node.services.vault.*
@@ -192,6 +193,14 @@ interface CordaRPCOps : RPCOps {
      */
     @Deprecated("This method is intended only for internal use and will be removed from the public API soon.")
     fun internalVerifiedTransactionsSnapshot(): List<SignedTransaction>
+
+    /**
+     * Kaleido
+     * @suppress Returns a page of all recorded transactions, with paging spec.
+     *
+     * TODO This method should be removed once SGX work is finalised and the design of the corresponding API using [FilteredTransaction] can be started
+     */
+    fun internalVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction>
 
     /**
      * @suppress Returns the full transaction for the provided ID

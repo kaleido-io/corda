@@ -4,6 +4,8 @@ import net.corda.core.concurrent.CordaFuture
 import net.corda.core.crypto.SecureHash
 import net.corda.core.internal.concurrent.doneFuture
 import net.corda.core.messaging.DataFeed
+import net.corda.core.node.services.TransactionStorage
+import net.corda.core.node.services.vault.PageSpecification
 import net.corda.core.serialization.SingletonSerializeAsToken
 import net.corda.core.toFuture
 import net.corda.core.transactions.SignedTransaction
@@ -23,6 +25,13 @@ open class MockTransactionStorage : WritableTransactionStorage, SingletonSeriali
 
     override fun trackTransactionWithNoWarning(id: SecureHash): CordaFuture<SignedTransaction> {
         return trackTransaction(id)
+    }
+
+    /**
+     * Kaliedo, new api impl
+     */
+    override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction> {
+        return DataFeed(TransactionStorage.Page(txns.values.mapNotNull { if (it.isVerified) it.stx else null }, 0), _updatesPublisher);
     }
 
     override fun track(): DataFeed<List<SignedTransaction>, SignedTransaction> {
