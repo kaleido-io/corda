@@ -200,7 +200,7 @@ interface CordaRPCOps : RPCOps {
      *
      * TODO This method should be removed once SGX work is finalised and the design of the corresponding API using [FilteredTransaction] can be started
      */
-    fun internalVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction>
+    fun getVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction>
 
     /**
      * @suppress Returns the full transaction for the provided ID
