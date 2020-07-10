@@ -197,10 +197,16 @@ interface CordaRPCOps : RPCOps {
     /**
      * Kaleido
      * Returns a page of all recorded transactions, with paging spec.
-     *
-     * TODO This method should be removed once SGX work is finalised and the design of the corresponding API using [FilteredTransaction] can be started
      */
     fun getVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction>
+
+    /**
+     * Kaleido
+     * Returns a page of all recorded transactions, with paging spec., and observable for future transactions
+     */
+    @RPCReturnsObservables
+    fun getVerifiedTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction>
+
 
     /**
      * @suppress Returns the full transaction for the provided ID
