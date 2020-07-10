@@ -274,6 +274,51 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
     }
 
     /**
+     * Kaleido: returns a Paged Snapshot with give paging spec using db query
+     */
+    private fun pagedSnapshotQuery(paging_: PageSpecification): TransactionStorage.Page<SignedTransaction> {
+        val paging = if (paging_.pageSize == Integer.MAX_VALUE) {
+            paging_.copy(pageSize = Integer.MAX_VALUE - 1)
+        } else {
+            paging_
+        }
+        log.info("XXXX-Kaleido Internal Impl pagedSnapshot")
+        log.info("Paging spec for transaction snapshot: $paging")
+        // calculate total transactions where a page specification has been defined
+        var  totalTransactions = txStorage.content.size;
+
+        // pagination checks
+        if (!paging.isDefault) {
+            // pagination
+            if (paging.pageNumber < DEFAULT_PAGE_NUM) throw PaginationException("invalid page number ${paging.pageNumber} [page numbers start from $DEFAULT_PAGE_NUM]")
+            if (paging.pageSize < 1) throw PaginationException("invalid page size ${paging.pageSize} [minimum is 1]")
+            if (paging.pageSize > MAX_PAGE_SIZE) throw PaginationException("invalid page size ${paging.pageSize} [maximum is $MAX_PAGE_SIZE]")
+        }
+
+        //query
+        val session = currentDBSession()
+        val criteriaQuery = session.criteriaBuilder.createQuery(DBTransaction::class.java)
+        val root = criteriaQuery.from(DBTransaction::class.java)
+        criteriaQuery.select(root)
+        val query = session.createQuery(criteriaQuery)
+
+
+        var firstResult = maxOf(0, (paging.pageNumber - 1) * paging.pageSize)
+        val pageSize = paging.pageSize + 1
+        var maxResults = if (pageSize > 0) pageSize else Integer.MAX_VALUE // detection too many results, protected against overflow
+        var otherResults = maxOf(0,(totalTransactions - firstResult) - maxResults + 1)
+
+        // final pagination check (fail-fast on too many results when no pagination specified)
+        if (paging.isDefault && maxResults > DEFAULT_PAGE_SIZE) {
+            throw PaginationException("There are ${maxResults} results, which exceeds the limit of $DEFAULT_PAGE_SIZE for queries that do not specify paging. In order to retrieve these results, provide a `PageSpecification(pageNumber, pageSize)` to the method invoked.")
+        }
+
+        return TransactionStorage.Page(txStorage.content.allPersisted.use {
+            it.skip(firstResult.toLong()).filter { it.second.status.isVerified() }.map { it.second.toSignedTx() }.limit(maxResults.toLong()-1).toList()
+        }, otherResults)
+    }
+
+    /**
      * Kaleido: returns a Paged Snapshot with give paging spec
      */
     private fun pagedSnapshot(paging_: PageSpecification): TransactionStorage.Page<SignedTransaction> {
