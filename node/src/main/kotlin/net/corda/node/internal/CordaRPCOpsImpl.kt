@@ -151,9 +151,17 @@ internal class CordaRPCOpsImpl(
      */
     override fun getVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction> {
         logger.info("XXXX-Kaleido-Internal, getVerifiedTransactionsSnapshotWithPagingSpec Impl")
-        val (snapshot, updates) = services.validatedTransactions.trackWithPagingSpec(pagingSpec)
+        val (snapshot, updates) = getVerifiedTransactionsFeedWithPagingSpec(pagingSpec)
         updates.notUsed()
         return snapshot
+    }
+
+    /**
+     * Kaleido, internal
+     */
+    override fun getVerifiedTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction> {
+        logger.info("XXXX-Kaleido-Internal, getVerifiedTransactionsFeedWithPagingSpec Impl")
+        return services.validatedTransactions.trackWithPagingSpec(pagingSpec)
     }
 
     @Suppress("OverridingDeprecatedMember")
