@@ -198,14 +198,14 @@ interface CordaRPCOps : RPCOps {
      * Kaleido
      * Returns a page of all recorded transactions, with paging spec.
      */
-    fun getVerifiedTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page<SignedTransaction>
+    fun getTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page
 
     /**
      * Kaleido
      * Returns a page of all recorded transactions, with paging spec., and observable for future transactions
      */
     @RPCReturnsObservables
-    fun getVerifiedTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction>
+    fun getTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction>
 
 
     /**
