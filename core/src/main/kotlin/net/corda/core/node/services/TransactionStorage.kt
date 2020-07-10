@@ -8,6 +8,7 @@ import net.corda.core.messaging.DataFeed
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
 import rx.Observable
+import java.time.Instant
 
 /**
  * Thread-safe storage of transactions.
@@ -39,6 +40,12 @@ interface TransactionStorage {
     /**
      * Kaleido: SignedTransaction Page.
      */
+    /**
+     * Kaleido: SignedTransaction Page.
+     */
     @CordaSerializable
-    data class Page<SignedTransaction> (val signedTransactions: List<SignedTransaction>, val otherResult: Long)
+    data class Page(val transactions: List<RecordedTransaction>, val otherResult: Long)
+
+    @CordaSerializable
+    data class RecordedTransaction(val signedTransaction: SignedTransaction, val timestamp: Instant, val verified: Boolean)
 }

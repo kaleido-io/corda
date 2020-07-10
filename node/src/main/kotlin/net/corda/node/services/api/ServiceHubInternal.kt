@@ -271,7 +271,7 @@ interface WritableTransactionStorage : TransactionStorage {
     /**
      * Kaleido: Returns a page of stored transactions and further fresh ones.
      */
-    fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction>
+    fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction>
 
 }
 

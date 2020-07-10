@@ -13,6 +13,7 @@ import net.corda.node.services.api.WritableTransactionStorage
 import net.corda.testing.node.MockServices
 import rx.Observable
 import rx.subjects.PublishSubject
+import java.time.Instant
 import java.util.*
 
 /**
@@ -30,8 +31,8 @@ open class MockTransactionStorage : WritableTransactionStorage, SingletonSeriali
     /**
      * Kaliedo, new api impl
      */
-    override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page<SignedTransaction>, SignedTransaction> {
-        return DataFeed(TransactionStorage.Page(txns.values.mapNotNull { if (it.isVerified) it.stx else null }, 0), _updatesPublisher);
+    override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction> {
+        return DataFeed(TransactionStorage.Page(txns.values.mapNotNull { TransactionStorage.RecordedTransaction(it.stx, Instant.now(),it.isVerified) }, 0), _updatesPublisher);
     }
 
     override fun track(): DataFeed<List<SignedTransaction>, SignedTransaction> {
