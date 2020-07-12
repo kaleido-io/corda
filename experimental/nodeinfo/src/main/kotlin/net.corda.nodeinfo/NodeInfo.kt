@@ -15,6 +15,7 @@ import net.corda.core.serialization.internal.SerializationEnvironment
 import net.corda.core.serialization.internal.nodeSerializationEnv
 import net.corda.core.serialization.serialize
 import net.corda.core.utilities.NetworkHostAndPort
+import net.corda.core.utilities.toBase58String
 import net.corda.nodeapi.internal.SignedNodeInfo
 import net.corda.nodeapi.internal.crypto.X509KeyStore
 import net.corda.serialization.internal.AMQP_P2P_CONTEXT
@@ -156,6 +157,7 @@ class NodeInfoSigner : CordaCliWrapper("nodeinfo-signer", "Display and generate 
             val nodeInfo = nodeInfoFromFile(displayPath!!.toFile())
 
             println("identities:      " + nodeInfo.legalIdentities[0].name)
+            println("publicKey        " + nodeInfo.legalIdentities[0].owningKey.toBase58String())
             println("address:         " + nodeInfo.addresses[0])
             println("platformVersion: " + nodeInfo.platformVersion)
             println("serial           " + nodeInfo.serial)
