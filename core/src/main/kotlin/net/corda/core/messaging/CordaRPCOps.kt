@@ -195,14 +195,20 @@ interface CordaRPCOps : RPCOps {
     fun internalVerifiedTransactionsSnapshot(): List<SignedTransaction>
 
     /**
-     * Kaleido
-     * Returns a page of all recorded transactions, with paging spec.
-     */
+    Returns a paged snapshot of transactions ordered by timestamp (In Ascending order) for a given paging specification
+    *
+    *  returns a [TransactionStorage.Page] object containing the following:
+    *  1. signedTransactions as a List of <TransactionStorage.RecordedTransaction> (page number and size defined by [PageSpecification])
+    *  2. otherTransactions, number of remaining transactions which can be consumed by next page number with give page size
+    *
+    * @throws TransactionStorage.TransactionsQueryException if there are paging errors
+    */
     fun getTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page
 
     /**
-     * Kaleido
-     * Returns a page of all recorded transactions, with paging spec., and observable for future transactions
+     * Returns a paged snapshot of transactions ordered by timestamp (In Ascending order), with paging spec., and observable for future transactions
+     *
+     * @throws TransactionStorage.TransactionsQueryException if there are paging errors
      */
     @RPCReturnsObservables
     fun getTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction>

@@ -228,10 +228,9 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
     }
 
     /**
-    * Kaleido : track with paging spec
+    *  track with paging specification
      * */
     override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction> {
-        log.info("XXXX-Kaleido Internal trackWithPagingSpec")
         return database.transaction {
             txStorage.locked {
                 DataFeed(pagedSnapshot(paging), updates.bufferUntilSubscribed())
@@ -275,7 +274,7 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
     }
 
     /**
-     * Kaleido: returns a Paged Snapshot with give paging spec using db query
+     * returns a Paged Snapshot with give paging spec by querying transaction db
      */
     private fun pagedSnapshot(paging_: PageSpecification): TransactionStorage.Page {
         val paging = if (paging_.pageSize == Integer.MAX_VALUE) {
@@ -283,7 +282,6 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
         } else {
             paging_
         }
-        log.info("XXXX-Kaleido Internal Impl pagedSnapshot")
         log.info("Paging spec for transaction snapshot: $paging")
         // calculate total transactions where a page specification has been defined
         var  totalTransactions = txStorage.content.size;
@@ -291,9 +289,9 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
         // pagination checks
         if (!paging.isDefault) {
             // pagination
-            if (paging.pageNumber < DEFAULT_PAGE_NUM) throw PaginationException("invalid page number ${paging.pageNumber} [page numbers start from $DEFAULT_PAGE_NUM]")
-            if (paging.pageSize < 1) throw PaginationException("invalid page size ${paging.pageSize} [minimum is 1]")
-            if (paging.pageSize > MAX_PAGE_SIZE) throw PaginationException("invalid page size ${paging.pageSize} [maximum is $MAX_PAGE_SIZE]")
+            if (paging.pageNumber < DEFAULT_PAGE_NUM) throw TransactionStorage.TransactionsQueryException("invalid page number ${paging.pageNumber} [page numbers start from $DEFAULT_PAGE_NUM]")
+            if (paging.pageSize < 1) throw TransactionStorage.TransactionsQueryException("invalid page size ${paging.pageSize} [minimum is 1]")
+            if (paging.pageSize > MAX_PAGE_SIZE) throw TransactionStorage.TransactionsQueryException("invalid page size ${paging.pageSize} [maximum is $MAX_PAGE_SIZE]")
         }
 
         //query
@@ -308,11 +306,10 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
         query.firstResult = maxOf(0, (paging.pageNumber - 1) * paging.pageSize)
         val pageSize = paging.pageSize + 1
         query.maxResults = if (pageSize > 0) pageSize else Integer.MAX_VALUE // detection too many results, protected against overflow
-        var otherResults = maxOf(0,(totalTransactions - query.firstResult) - query.maxResults + 1)
 
         // final pagination check (fail-fast on too many results when no pagination specified)
         if (paging.isDefault && query.maxResults > DEFAULT_PAGE_SIZE) {
-            throw PaginationException("There are ${query.maxResults} results, which exceeds the limit of $DEFAULT_PAGE_SIZE for queries that do not specify paging. In order to retrieve these results, provide a `PageSpecification(pageNumber, pageSize)` to the method invoked.")
+            throw TransactionStorage.TransactionsQueryException("There are ${query.maxResults} results, which exceeds the limit of $DEFAULT_PAGE_SIZE for queries that do not specify paging. In order to retrieve these results, provide a `PageSpecification(pageNumber, pageSize)` to the method invoked.")
         }
         //execute
         val results = query.resultList
@@ -322,10 +319,8 @@ class DBTransactionStorage(private val database: CordaPersistence, cacheFactory:
                 return@forEachIndexed
             recordedTransactions.add(TransactionStorage.RecordedTransaction(dbTransaction.transaction.deserialize(context = contextToUse()), dbTransaction.timestamp, dbTransaction.status.isVerified()))
         }
-        return TransactionStorage.Page(recordedTransactions, otherResults)
+        return TransactionStorage.Page(recordedTransactions, totalTransactions)
     }
-
-    private class PaginationException(msg: String) : Exception("Invalid PageSpecification:$msg for verifiedTx Snapshot")
 
     // Cache value type to just store the immutable bits of a signed transaction plus conversion helpers
     private data class TxCacheValue(

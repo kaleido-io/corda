@@ -28,9 +28,6 @@ open class MockTransactionStorage : WritableTransactionStorage, SingletonSeriali
         return trackTransaction(id)
     }
 
-    /**
-     * Kaliedo, new api impl
-     */
     override fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction> {
         return DataFeed(TransactionStorage.Page(txns.values.mapNotNull { TransactionStorage.RecordedTransaction(it.stx, Instant.now(),it.isVerified) }, 0), _updatesPublisher);
     }
