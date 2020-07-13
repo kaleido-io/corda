@@ -4,6 +4,7 @@ import net.corda.core.DeleteForDJVM
 import net.corda.core.DoNotImplement
 import net.corda.core.concurrent.CordaFuture
 import net.corda.core.crypto.SecureHash
+import net.corda.core.flows.FlowException
 import net.corda.core.messaging.DataFeed
 import net.corda.core.serialization.CordaSerializable
 import net.corda.core.transactions.SignedTransaction
@@ -40,12 +41,13 @@ interface TransactionStorage {
     /**
      * Kaleido: SignedTransaction Page.
      */
-    /**
-     * Kaleido: SignedTransaction Page.
-     */
     @CordaSerializable
-    data class Page(val transactions: List<RecordedTransaction>, val otherResult: Long)
+    data class Page(val transactions: List<RecordedTransaction>, val totalTransactionsAvailable: Long)
 
     @CordaSerializable
     data class RecordedTransaction(val signedTransaction: SignedTransaction, val timestamp: Instant, val verified: Boolean)
+
+    class TransactionsQueryException(description: String, cause: Exception? = null) : Exception(description, cause) {
+        constructor(description: String) : this(description, null)
+    }
 }

@@ -269,7 +269,7 @@ interface WritableTransactionStorage : TransactionStorage {
     fun trackTransactionWithNoWarning(id: SecureHash): CordaFuture<SignedTransaction>
 
     /**
-     * Kaleido: Returns a page of stored transactions and further fresh ones.
+     * Returns a page of stored transactions and further fresh ones.
      */
     fun trackWithPagingSpec(paging: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction>
 
