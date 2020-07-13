@@ -199,7 +199,7 @@ interface CordaRPCOps : RPCOps {
     *
     *  returns a [TransactionStorage.Page] object containing the following:
     *  1. signedTransactions as a List of <TransactionStorage.RecordedTransaction> (page number and size defined by [PageSpecification])
-    *  2. otherTransactions, number of remaining transactions which can be consumed by next page number with give page size
+    *  2. totalTransactionsAvailable, total number of recorded transactions
     *
     * @throws TransactionStorage.TransactionsQueryException if there are paging errors
     */
