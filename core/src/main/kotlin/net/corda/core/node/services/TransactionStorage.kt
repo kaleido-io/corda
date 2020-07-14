@@ -37,7 +37,7 @@ interface TransactionStorage {
      * Returns a future that completes with the transaction corresponding to [id] once it has been committed
      */
     fun trackTransaction(id: SecureHash): CordaFuture<SignedTransaction>
-    
+
     @CordaSerializable
     data class Page(val transactions: List<RecordedTransaction>, val totalTransactionsAvailable: Long)
 
