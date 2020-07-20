@@ -146,21 +146,13 @@ internal class CordaRPCOpsImpl(
         return snapshot
     }
 
-    /**
-     * Kaleido, internal
-     */
     override fun getTransactionsSnapshotWithPagingSpec(pagingSpec: PageSpecification): TransactionStorage.Page {
-        logger.info("XXXX-Kaleido-Internal, getTransactionsSnapshotWithPagingSpec Impl")
         val (snapshot, updates) = getTransactionsFeedWithPagingSpec(pagingSpec)
         updates.notUsed()
         return snapshot
     }
 
-    /**
-     * Kaleido, internal
-     */
     override fun getTransactionsFeedWithPagingSpec(pagingSpec: PageSpecification): DataFeed<TransactionStorage.Page, SignedTransaction> {
-        logger.info("XXXX-Kaleido-Internal, getTransactionsFeedWithPagingSpec Impl")
         return services.validatedTransactions.trackWithPagingSpec(pagingSpec)
     }
 
