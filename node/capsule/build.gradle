@@ -107,7 +107,7 @@ task buildCordaJAR(type: FatCapsule, dependsOn: [
         // NOTE: these can be overridden in node.conf.
         //
         // If you change these flags, please also update Driver.kt
-        jvmArgs = ['-Xmx512m', '-XX:+UseG1GC', '-Dsun.net.spi.nameservice.provider.1="dns,sun"', '-Dsun.net.spi.nameservice.nameservers=127.0.0.1']
+        jvmArgs = ['-Xmx512m', '-XX:+UseG1GC', '-Dsun.net.spi.nameservice.provider.2="dns,sun"', '-Dsun.net.spi.nameservice.nameservers=127.0.0.1']
         if (JavaVersion.current() == JavaVersion.VERSION_11) {
             jvmArgs += ['-Djdk.attach.allowAttachSelf=true']
         }
