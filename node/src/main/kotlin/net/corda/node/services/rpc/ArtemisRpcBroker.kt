@@ -45,7 +45,7 @@ class ArtemisRpcBroker internal constructor(
     }
 
     override fun start() {
-        logger.debug("Artemis RPC broker is starting.")
+        logger.debug("Artemis RPC broker is starting. $addresses")
         try {
             server.start()
         } catch (e: java.io.IOException) {
