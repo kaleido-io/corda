@@ -76,7 +76,7 @@ class ArtemisRpcBroker internal constructor(
     private fun initialiseServer(): ActiveMQServer {
         val serverConfiguration = RpcBrokerConfiguration(baseDirectory, maxMessageSize, jmxEnabled, addresses.primary, adminAddressOptional, sslOptions, useSsl, nodeConfiguration, shouldStartLocalShell)
         val serverSecurityManager = createArtemisSecurityManager(serverConfiguration.loginListener)
-
+        logger.debug("server configuration: ${addresses.primary} $adminAddressOptional")
         return ActiveMQServerImpl(serverConfiguration, serverSecurityManager).apply {
             registerActivationFailureListener { exception -> throw exception }
             registerPostQueueDeletionCallback { address, qName -> logger.debug("Queue deleted: $qName for $address") }
