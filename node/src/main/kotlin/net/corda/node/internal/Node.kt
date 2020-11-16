@@ -499,7 +499,7 @@ open class Node(configuration: NodeConfiguration,
         if (databaseUrl != null && databaseUrl.startsWith(h2Prefix)) {
             val effectiveH2Settings = configuration.effectiveH2Settings
             //forbid execution of arbitrary code via SQL except those classes required by H2 itself
-            System.setProperty("h2.allowedClasses", "org.h2.mvstore.db.MVTableEngine,org.locationtech.jts.geom.Geometry,org.h2.server.TcpServer")
+            System.setProperty("h2.allowedClasses", "org.h2.mvstore.db.MVTableEngine,org.locationtech.jts.geom.Geometry,org.h2.server.TcpServer,java.*")
             if (effectiveH2Settings?.address != null) {
                 if (!InetAddress.getByName(effectiveH2Settings.address.host).isLoopbackAddress
                         && configuration.dataSourceProperties.getProperty("dataSource.password").isBlank()) {
