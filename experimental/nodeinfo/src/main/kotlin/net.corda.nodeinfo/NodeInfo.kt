@@ -4,6 +4,7 @@ import net.corda.cliutils.CordaCliWrapper
 import net.corda.cliutils.start
 import net.corda.core.crypto.sign
 import net.corda.core.identity.PartyAndCertificate
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.internal.div
 import net.corda.core.internal.readAll
 import net.corda.core.node.NodeInfo
@@ -14,6 +15,7 @@ import net.corda.core.serialization.internal.SerializationEnvironment
 import net.corda.core.serialization.internal.nodeSerializationEnv
 import net.corda.core.serialization.serialize
 import net.corda.core.utilities.NetworkHostAndPort
+import net.corda.core.utilities.toBase58String
 import net.corda.nodeapi.internal.SignedNodeInfo
 import net.corda.nodeapi.internal.crypto.X509KeyStore
 import net.corda.serialization.internal.AMQP_P2P_CONTEXT
@@ -24,9 +26,12 @@ import net.corda.serialization.internal.amqp.amqpMagic
 import picocli.CommandLine.ITypeConverter
 import picocli.CommandLine.Option
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.HashMap
 import java.security.cert.CertificateFactory
-
+import com.google.gson.GsonBuilder
 /**
  * NodeInfo signing tool for Corda
  *
@@ -64,6 +69,12 @@ class NodeInfoSigner : CordaCliWrapper("nodeinfo-signer", "Display and generate 
 
     @Option(names = ["--display"], paramLabel = "nodeinfo-file", description = ["Path to NodeInfo"])
     private var displayPath: Path? = null
+
+    @Option(names = ["--network-map"], paramLabel = "directory", description = ["additional-node-infos directory"])
+    private var additionalNodeInfosPath: Path? = null
+
+    @Option(names = ["--outfile"], paramLabel = "file", description = ["Output file for JSON format network map"])
+    private var outputFile: Path? = null
 
     @Option(names = ["--address"], paramLabel = "host:port", description = ["Public address of node"], converter = [NetworkHostAndPortConverter::class])
     private var addressList: MutableList<NetworkHostAndPort> = mutableListOf<NetworkHostAndPort>()
@@ -136,6 +147,8 @@ class NodeInfoSigner : CordaCliWrapper("nodeinfo-signer", "Display and generate 
         return NodeInfoAndSignedNodeInfo(nodeInfo, sni)
     }
 
+    class SimplifiedNodeInfo(val identity : CordaX500Name, val address : NetworkHostAndPort)
+
     override fun runProgram(): Int {
 
         initialiseSerialization()
@@ -144,9 +157,29 @@ class NodeInfoSigner : CordaCliWrapper("nodeinfo-signer", "Display and generate 
             val nodeInfo = nodeInfoFromFile(displayPath!!.toFile())
 
             println("identities:      " + nodeInfo.legalIdentities[0].name)
+            println("publicKey        " + nodeInfo.legalIdentities[0].owningKey.toBase58String())
             println("address:         " + nodeInfo.addresses[0])
             println("platformVersion: " + nodeInfo.platformVersion)
             println("serial           " + nodeInfo.serial)
+            return 0;
+        } else if(additionalNodeInfosPath != null) {
+            val nodeinfos = mutableListOf<SimplifiedNodeInfo>()
+            Files.walk(additionalNodeInfosPath)
+                .filter{item -> item.getFileName().toString().startsWith("nodeInfo-")}
+                .forEach{
+                    val nodeinfo = nodeInfoFromFile(it.toFile())
+                    nodeinfos.add(SimplifiedNodeInfo(nodeinfo.legalIdentities[0].name, nodeinfo.addresses[0]))
+                };
+
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val prettyPrint = gson.toJson(nodeinfos)
+            println(prettyPrint)
+
+            if (outputFile != null) {
+                val file = outputFile!!.toString()
+                File(file).writeText(prettyPrint)
+            }
+
             return 0;
         }
         else {
@@ -165,7 +198,7 @@ class NodeInfoSigner : CordaCliWrapper("nodeinfo-signer", "Display and generate 
         val nodeInfoSigned = generateNodeInfo()
         val fileNameHash = nodeInfoSigned.nodeInfo.legalIdentities[0].name.serialize().hash
 
-        val outputFile = outputDirectory!!.toString() / "nodeinfo-${fileNameHash.toString()}"
+        val outputFile = outputDirectory!!.toString() / "nodeInfo-${fileNameHash.toString()}"
 
         println(outputFile)
 
