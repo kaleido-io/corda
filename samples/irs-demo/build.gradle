@@ -44,12 +44,6 @@ configurations {
     systemTestCompile.extendsFrom testCompile
 }
 
-repositories {
-    maven {
-        url 'https://dl.bintray.com/palantir/releases' // docker-compose-rule is published on bintray
-    }
-}
-
 evaluationDependsOn("cordapp")
 evaluationDependsOn("web")
 
@@ -76,6 +70,15 @@ dependencies {
     testCompile "com.palantir.docker.compose:docker-compose-rule-junit4:$docker_compose_rule_version"
     testCompile "org.seleniumhq.selenium:selenium-java:$selenium_version"
     testCompile "com.github.detro:ghostdriver:$ghostdriver_version"
+}
+
+repositories {
+    maven {
+        url 'https://maven.scijava.org/content/repositories/public/'
+        content {
+            includeGroup 'com.github.detro'
+        }
+    }
 }
 
 bootRepackage {
