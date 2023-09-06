@@ -182,7 +182,7 @@ dependencies {
     testCompile project(path: ':finance:contracts', configuration: 'testArtifacts')
 
     // For H2 database support in persistence
-    compile "com.h2database:h2:$h2_version"
+    compile files("../lib/h2-1.4.200.jar")
 
     // SQL connection pooling library
     compile "com.zaxxer:HikariCP:${hikari_version}"
