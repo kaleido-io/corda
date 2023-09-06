@@ -127,9 +127,3 @@ include 'serialization-deterministic'
 include 'detekt-plugins'
 include 'tools:error-tool'
 
-includeBuild('../gradle-capsule-plugin') {
-  dependencySubstitution {
-    // substitute remote dependency with local module
-    substitute module('us.kirchmeier:gradle-capsule-plugin') with project(':')
-  }
-}
